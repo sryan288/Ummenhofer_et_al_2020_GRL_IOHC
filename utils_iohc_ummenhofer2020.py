@@ -182,4 +182,21 @@ def monte_carlo(ds,duration,n,pval,timevar):
     # derive percentile
     perc_upper = np.nanpercentile(mc,100-pval,axis=2)
     perc_lower = np.nanpercentile(mc,pval,axis=2)
-    return perc_lower,perc_upper        
+    return perc_lower,perc_upper   
+
+#
+#--------------------------------------------------------------------------
+# create mask for 2D field percentile
+def mask_2D_percentile(data,pval,level,refperiod=None):
+    if refperiod:
+        test =np.nanpercentile(data.sel(time_counter=slice(*refperiod)),pval,axis=0)
+    else:
+        test =np.nanpercentile(data,pval,axis=0)
+    mask= data.values-test
+    if level=='above':
+        mask[mask>0]=1
+        mask[mask<0]=np.nan
+    elif level=='below':
+        mask[mask>0]=np.nan
+        mask[mask<0]=1
+    return mask
